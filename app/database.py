@@ -1,31 +1,13 @@
 from urllib.parse import quote_plus
 from sqlalchemy import create_engine
-import dotenv
 import os
-from logs import init_log, logging_msg
+from app.logs import logging_msg
 
 
 
 ####################################################################################################
 ####################################################################################################
 ####################################################################################################
-
-############
-### INIT ###
-############
-def init()->bool:
-    log_prefix = '[database | init]'
-    try:
-        init_log()
-        dotenv.load_dotenv('.env', override=True)
-
-        logging_msg(f"{log_prefix} OK")
-        return True
-    
-    except Exception as e:
-        print(f"Error: {e}")
-        return False
-
 
 ##################
 ### CONNECTION ###
@@ -59,6 +41,10 @@ def connect()->create_engine:
 
         logging_msg(f"{log_prefix} create engine")
         engine = create_engine(connection_string)
+
+        # with engine.connect() as conn:
+        #     conn.execute("SELECT 1")
+
         return engine
     
     except Exception as e:
@@ -83,18 +69,3 @@ def disconnect(engine:create_engine)->None:
 ####################################################################################################
 ####################################################################################################
 ####################################################################################################
-
-############
-### MAIN ###
-############
-if __name__ == "__main__":
-    log_prefix = '[database | main]'
-    try:
-        if init():
-            engine = connect()
-            logging_msg("OOKK", 'WARNING')
-            disconnect(engine)
-            
-    
-    except Exception as e:
-        logging_msg(f"{log_prefix} Error: {e}", 'CRITICAL')
