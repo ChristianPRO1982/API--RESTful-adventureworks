@@ -1,7 +1,8 @@
-fastapi
-uvicorn
 sqlmodel
 sqlalchemy
-pydantic[dotenv]
-python-multipart
+pyodbc
 python-dotenv
+sqlalchemy
+pandas
+fastapi
+uvicorn
