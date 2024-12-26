@@ -4,16 +4,20 @@ from typing import Optional
 
 
 class Product(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    name: str
-    product_number: str
-    make_flag: bool
-    finished_goods_flag: bool
-    color: Optional[str] = None
-    safety_stock_level: int
-    reorder_point: int
-    standard_cost: float
-    list_price: float
-    days_to_manufacture: int
-    sell_start_date: str
-    sell_end_date: Optional[str] = None
+    productid: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(sa_column_kwargs={"unique": True})
+    productnumber: str = Field(sa_column_kwargs={"unique": True})
+    color: str
+    standardcost: float
+    listprice: float
+    size: float
+    weight: float
+    productmodelid: Optional[int] = Field(default=None, foreign_key="productmodel.productmodelid")
+    productcategoryid: Optional[int] = Field(default=None, foreign_key="productcategory.productcategoryid")
+    sellstartdate: Optional[str] = Field(default=None)
+    sellenddate: Optional[str] = Field(default=None)
+    discontinueddate: Optional[str] = Field(default=None)
+    thumbnailphoto: Optional[bytes] = Field(default=None)
+    thumbnailphotofilename: Optional[str] = Field(default=None)
+    rowguid: Optional[str] = Field(default=None)
+    modifieddate: Optional[str] = Field(default=None)
