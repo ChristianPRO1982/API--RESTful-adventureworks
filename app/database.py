@@ -14,7 +14,7 @@ from app.logs import init_log, logging_msg
 ### INIT ###
 ############
 def init()->bool:
-    log_prefix = '[crud | init]'
+    log_prefix = '[database | init]'
     try:
         dotenv.load_dotenv('.env', override=True)
         init_log()
