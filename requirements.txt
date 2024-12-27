@@ -2,7 +2,6 @@ sqlmodel
 sqlalchemy
 pyodbc
 python-dotenv
-sqlalchemy
 pandas
 fastapi
 uvicorn
