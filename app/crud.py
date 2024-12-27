@@ -16,8 +16,8 @@ from app.database import connect, disconnect
 def init()->bool:
     log_prefix = '[crud | init]'
     try:
-        init_log()
         dotenv.load_dotenv('.env', override=True)
+        init_log()
 
         logging_msg(f"{log_prefix} OK")
         return True
@@ -35,8 +35,9 @@ def init()->bool:
 ### API ###
 ###########
 
-def pd_isna(value):
+def pd_isna(value, var_name: str):
     if pd.isna(value):
+        logging_msg(f"pd_isna(), var_name: {var_name} is None", 'DEBUG')
         return None
     return value
 
@@ -45,6 +46,8 @@ def get_products():
     log_prefix = '[crud | get_products]'
     try:
         if init():
+            logging_msg(f"get_products() START", 'WARNING')
+
             engine = connect()
             
             request = f"""
@@ -67,6 +70,8 @@ LEFT JOIN Production.ProductDescription pd ON pd.ProductDescriptionID = pmpdc.Pr
             json_productmodel = [{}]
             productid = 0
             for index, row in df_result.iterrows():
+                logging_msg(f"get_products() - {index}", 'DEBUG')
+
                 product_productid = row['ProductID']
                 product_name = row['Name']
                 product_productnumber = row['ProductNumber']
@@ -80,13 +85,13 @@ LEFT JOIN Production.ProductDescription pd ON pd.ProductDescriptionID = pmpdc.Pr
                 product_size = row['Size']
                 product_sizeunitmeasurecode = row['SizeUnitMeasureCode']
                 product_weightunitmeasurecode = row['WeightUnitMeasureCode']
-                product_weight = pd_isna(row['Weight'])
+                product_weight = pd_isna(row['Weight'], 'Weight')
                 product_daystomanufacture = row['DaysToManufacture']
                 product_productline = row['ProductLine']
                 product_class = row['Class']
                 product_style = row['Style']
-                product_productsubcategoryid = pd_isna(row['ProductSubcategoryID'])
-                product_productmodelid = pd_isna(row['ProductModelID'])
+                product_productsubcategoryid = pd_isna(row['ProductSubcategoryID'], 'ProductSubcategoryID')
+                product_productmodelid = pd_isna(row['ProductModelID'], 'ProductModelID')
                 product_sellstartdate = row['SellStartDate']
                 product_sellenddate = row['SellEndDate']
                 product_discontinueddate = row['DiscontinuedDate']
@@ -100,7 +105,7 @@ LEFT JOIN Production.ProductDescription pd ON pd.ProductDescriptionID = pmpdc.Pr
                 productmodel_instructions = row['pm_instructions']
                 productmodel_rowguid = row['pm_rowguid']
                 productmodel_modifieddate = row['pm_modifieddate']
-                pmpdc_productdescriptionid = pd_isna(row['pmpdc_productdescriptionid'])
+                pmpdc_productdescriptionid = pd_isna(row['pmpdc_productdescriptionid'], 'pmpdc_productdescriptionid')
                 pmpdc_cultureid = row['pmpdc_cultureid']
                 pmpdc_modifieddate = row['pmpdc_modifieddate']
                 pd_description = row['pd_description']
@@ -175,6 +180,7 @@ LEFT JOIN Production.ProductDescription pd ON pd.ProductDescriptionID = pmpdc.Pr
                         })
                 
             disconnect(engine)
+            logging_msg(f"get_products() END - OK", 'WARNING')
             return json_result
 
         else:
