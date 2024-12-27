@@ -35,6 +35,12 @@ def init()->bool:
 ### API ###
 ###########
 
+def pd_isna(value):
+    if pd.isna(value):
+        return None
+    return value
+
+
 def get_products():
     log_prefix = '[crud | get_products]'
     try:
@@ -56,7 +62,9 @@ LEFT JOIN Production.ProductDescription pd ON pd.ProductDescriptionID = pmpdc.Pr
         """
 
             df_result = pd.read_sql_query(text(request), engine)
-            json_result = df_result.to_json(orient="records")
+            json_result_tmp = None
+            json_result = []
+            json_productmodel = [{}]
             productid = 0
             for index, row in df_result.iterrows():
                 product_productid = row['ProductID']
@@ -72,13 +80,13 @@ LEFT JOIN Production.ProductDescription pd ON pd.ProductDescriptionID = pmpdc.Pr
                 product_size = row['Size']
                 product_sizeunitmeasurecode = row['SizeUnitMeasureCode']
                 product_weightunitmeasurecode = row['WeightUnitMeasureCode']
-                product_weight = row['Weight']
+                product_weight = pd_isna(row['Weight'])
                 product_daystomanufacture = row['DaysToManufacture']
                 product_productline = row['ProductLine']
                 product_class = row['Class']
                 product_style = row['Style']
-                product_productsubcategoryid = row['ProductSubcategoryID']
-                product_productmodelid = row['ProductModelID']
+                product_productsubcategoryid = pd_isna(row['ProductSubcategoryID'])
+                product_productmodelid = pd_isna(row['ProductModelID'])
                 product_sellstartdate = row['SellStartDate']
                 product_sellenddate = row['SellEndDate']
                 product_discontinueddate = row['DiscontinuedDate']
@@ -92,7 +100,7 @@ LEFT JOIN Production.ProductDescription pd ON pd.ProductDescriptionID = pmpdc.Pr
                 productmodel_instructions = row['pm_instructions']
                 productmodel_rowguid = row['pm_rowguid']
                 productmodel_modifieddate = row['pm_modifieddate']
-                pmpdc_productdescriptionid = row['pmpdc_productdescriptionid']
+                pmpdc_productdescriptionid = pd_isna(row['pmpdc_productdescriptionid'])
                 pmpdc_cultureid = row['pmpdc_cultureid']
                 pmpdc_modifieddate = row['pmpdc_modifieddate']
                 pd_description = row['pd_description']
@@ -100,15 +108,81 @@ LEFT JOIN Production.ProductDescription pd ON pd.ProductDescriptionID = pmpdc.Pr
                 pd_modifieddate = row['pd_modifieddate']
 
                 if productid != product_productid:
+                    if json_result_tmp:
+                        json_result.append(json_result_tmp)
+
                     productid = product_productid
+
+                    json_result_tmp = {
+                        'ProductID': product_productid,
+                        'Name': product_name,
+                        'ProductNumber': product_productnumber,
+                        'MakeFlag': product_makeflag,
+                        'FinishedGoodsFlag': product_finishedgoodsflag,
+                        'Color': product_color,
+                        'SafetyStockLevel': product_safetystocklevel,
+                        'ReorderPoint': product_reorderpoint,
+                        'StandardCost': product_standardcost,
+                        'ListPrice': product_listprice,
+                        'Size': product_size,
+                        'SizeUnitMeasureCode': product_sizeunitmeasurecode,
+                        'WeightUnitMeasureCode': product_weightunitmeasurecode,
+                        'Weight': product_weight,
+                        'DaysToManufacture': product_daystomanufacture,
+                        'ProductLine': product_productline,
+                        'Class': product_class,
+                        'Style': product_style,
+                        'ProductSubcategoryID': product_productsubcategoryid,
+                        'ProductModelID': product_productmodelid,
+                        'SellStartDate': product_sellstartdate,
+                        'SellEndDate': product_sellenddate,
+                        'DiscontinuedDate': product_discontinueddate,
+                        'rowguid': product_rowguid,
+                        'ModifiedDate': product_modifieddate,
+                        'ProductCategoryName': productcategory_name,
+                        'ProductCategoryrowguid': productcategory_rowguid,
+                        'ProductCategoryModifiedDate': productcategory_modifieddate,
+                    }
+
+                    json_productmodel = []
+                    json_productmodel.append({
+                            'Name': productmodel_name,
+                            'CatalogDescription': productmodel_catalogdescription,
+                            'Instructions': productmodel_instructions,
+                            'rowguid': productmodel_rowguid,
+                            'ModifiedDate': productmodel_modifieddate,
+                            'pmpdc_productdescriptionid': pmpdc_productdescriptionid,
+                            'pmpdc_cultureid': pmpdc_cultureid,
+                            'pmpdc_modifieddate': pmpdc_modifieddate,
+                            'pd_description': pd_description,
+                            'pd_rowguid': pd_rowguid,
+                            'pd_modifieddate': pd_modifieddate,
+                        })
+                    json_result_tmp['ProductModel'] = json_productmodel
+                else:
+                    json_productmodel.append({
+                            'Name': productmodel_name,
+                            'CatalogDescription': productmodel_catalogdescription,
+                            'Instructions': productmodel_instructions,
+                            'rowguid': productmodel_rowguid,
+                            'ModifiedDate': productmodel_modifieddate,
+                            'pmpdc_productdescriptionid': pmpdc_productdescriptionid,
+                            'pmpdc_cultureid': pmpdc_cultureid,
+                            'pmpdc_modifieddate': pmpdc_modifieddate,
+                            'pd_description': pd_description,
+                            'pd_rowguid': pd_rowguid,
+                            'pd_modifieddate': pd_modifieddate,
+                        })
                 
             disconnect(engine)
-            
+            return json_result
+
+        else:
+            return None            
     
     except Exception as e:
         logging_msg(f"{log_prefix} Error: {e}", 'CRITICAL')
-    # return session.query(Product).all()
-    return json_result
+        return None
 
 
 # def get_product_by_id(session: Session, product_id: int):
