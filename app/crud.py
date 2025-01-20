@@ -43,7 +43,6 @@ def get_products(db: Session, skip: int = 0, limit: int = 10) -> List[Product]:
         .from_statement(text('SELECT * FROM production.product'))
         .all()
     )
-    from sqlalchemy.sql import text
 
 def update_product(db: Session, product_id: int, name: Optional[str], product_number: Optional[str]) -> Product:
     db_product = db.query(Product).filter(Product.ProductID == product_id).first()
