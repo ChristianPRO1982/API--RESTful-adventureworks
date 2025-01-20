@@ -15,7 +15,6 @@ import uuid
 
 class Product(SQLModel, table=True):
     __tablename__ = "production.product"
-    # __schema__ = 'production'
 
     ProductID: int = Field(default=None, primary_key=True)  # Clé primaire
     Name: str = Field(max_length=100)
