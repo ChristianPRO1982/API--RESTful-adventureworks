@@ -69,7 +69,7 @@ def logging_msg(msg, type='INFO')->bool:
             raise ValueError("Invalid log type")
 
         if type != 'DEBUG':
-            print(f"[{type}] {msg} : ")
+            print(f"[{type}] {msg}")
 
         return True
 

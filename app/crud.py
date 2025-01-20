@@ -36,8 +36,14 @@ def create_product(db: Session, name: str, product_number: str, make_flag: bool,
 def get_product(db: Session, product_id: int) -> Optional[Product]:
     return db.query(Product).filter(Product.ProductID == product_id).first()
 
-def get_products(db: Session, skip: int = 0, limit: int = 10) -> List[Product]:
-    return db.query(Product).offset(skip).limit(limit).all()
+def get_products(db: Session, skip: int = 0, limit: int = 10):
+    return (
+        db.query(Product)
+        .order_by(Product.ProductID)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 def update_product(db: Session, product_id: int, name: Optional[str], product_number: Optional[str]) -> Product:
     db_product = db.query(Product).filter(Product.ProductID == product_id).first()

@@ -1,9 +1,8 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
-from .database import init_db
 from datetime import datetime
 from app.logs import logging_msg
-from app.database import init_db
+from app.database import init_db, get_session
 from app import crud, models
 
 
@@ -17,18 +16,17 @@ app = FastAPI()
 ###############
 ### STARTUP ###
 ###############
-
-# @app.on_event("startup")
-# def on_startup():
-#     init_db()
+@app.on_event("startup")
+def on_startup():
+    init_db()  # Initialise la base de données et les tables
 
 
 ##############
 ### GET DB ###
 ##############
-
 def get_db():
-    db = init_db()
+    """Crée un contexte de session pour les routes."""
+    db = get_session()
     try:
         yield db
     finally:
