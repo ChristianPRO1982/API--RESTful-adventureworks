@@ -5,3 +5,7 @@ python-dotenv
 pandas
 fastapi
 uvicorn
+jwt
+pyjwt
+passlib
+python-multipart
