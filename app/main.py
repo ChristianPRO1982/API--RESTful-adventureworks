@@ -218,7 +218,7 @@ def get_db():
 ############
 
 @app.get("/")
-def read_root():
+async def read_root(current_user: Annotated[User, Depends(get_current_user)]):
     return "[" + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "] Welcome to FastAPI project! All informations are available on /docs"
 
 
@@ -227,5 +227,6 @@ def read_root():
 ################
 
 @app.get("/products/")
-def read_products(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+async def read_products(current_user: Annotated[User, Depends(get_current_user)], skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+# def read_products(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return crud.get_products(db=db, skip=skip, limit=limit)
