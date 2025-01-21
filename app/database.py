@@ -2,6 +2,7 @@ from sqlmodel import SQLModel, create_engine, Session
 from urllib.parse import quote_plus
 import dotenv
 import os
+import subprocess
 from app.logs import init_log, logging_msg
 
 
@@ -28,17 +29,40 @@ def init()->bool:
     except Exception as e:
         print(f"Error: {e}")
         return False
+    
+
+def generate_secret_key():
+    # to get a string like this run:
+    # openssl rand -hex 32
+    result = subprocess.run(["openssl", "rand", "-hex", "32"], capture_output=True, text=True)
+    logging_msg("generate_secret_key():" + result.stdout.strip(), 'DEBUG')
+    return result.stdout.strip()
+
+
+def secrets()->tuple:
+    try:
+        SECRET_KEY = generate_secret_key()
+        ALGORITHM = "HS256"
+        ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+        return SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+    
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return None, None, None
+
 
 ##############
 ### ENGINE ###
 ##############
 def main_create_engine()->create_engine:
+    log_prefix = '[database | main]'
+
     try:
         if init():
             dotenv.load_dotenv('.env', override=True)
             
-            log_prefix = '[database | main]'
-
             DRIVER = os.getenv("DRIVER")
             SERVER = os.getenv("SERVER")
             if SERVER.startswith("tcp:"):  # Nettoyage de l'adresse serveur
@@ -79,15 +103,20 @@ def main_create_engine()->create_engine:
 ### FONCTIONS ###
 #################
 
-def init_db():
+def init_db()->tuple:
     """Initialise le moteur et les tables."""
-    global engine  # Référence à l'engine global
-    if not engine:
-        engine = main_create_engine()
-    if engine:
-        SQLModel.metadata.create_all(engine)
-    else:
-        raise RuntimeError("Engine is not initialized. Check the logs for errors.")
+    try:
+        global engine  # Référence à l'engine global
+        if not engine:
+            engine = main_create_engine()
+        if engine:
+            SQLModel.metadata.create_all(engine)
+        else:
+            raise RuntimeError("Engine is not initialized. Check the logs for errors.")
+
+
+    except Exception as e:
+        print(f"Error: {e}")
 
 def get_session():
     """Retourne une session connectée au moteur."""

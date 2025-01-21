@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from typing import Annotated
 from datetime import datetime, timedelta, timezone
 from app.logs import logging_msg
-from app.database import init_db, get_session
+from app.database import init_db, get_session, secrets
 from app import crud, models
 
 
@@ -27,9 +27,8 @@ from app import crud, models
 
 # to get a string like this run:
 # openssl rand -hex 32
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+# SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES = secrets()
 
 
 fake_users_db = {
