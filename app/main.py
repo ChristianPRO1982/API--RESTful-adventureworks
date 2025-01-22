@@ -11,7 +11,6 @@ from pydantic import BaseModel, ValidationError
 from sqlalchemy.orm import Session
 from typing import Annotated
 from datetime import datetime, timedelta, timezone
-from app.logs import logging_msg
 from app.database import init_db, get_session, secrets
 from app import crud, models
 
